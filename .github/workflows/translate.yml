@@ -1,0 +1,35 @@
+name: Translate
+
+on: workflow_dispatch
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Git config
+        run: |
+          git config user.name ${{github.actor}}
+          git config user.email ${{github.actor}}@users.noreply.github.com
+      - name: Read 'en.json'
+        id: translation_base
+        run: |
+          content=`cat ./en.json`
+          # the following lines are only required for multi line json
+          content="${content//'%'/''}"
+          content="${content//$'\n'/''}"
+          content="${content//$'\r'/''}"
+          # end of optional handling for multi line json
+          echo "enJson=$content" >> $GITHUB_OUTPUT
+      - name: Invoke custom Translate lambda function
+        id: translation
+        uses: gagoar/invoke-aws-lambda@v3.3.1
+        with:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          REGION: ${{ secrets.REGION }}
+          FunctionName: "translate-files"
+          Payload: ${{steps.translation_base.outputs.enJson}}
+      - name: Echo response Payload
+        run: echo ${{ fromJSON(steps.translation.outputs.response).Payload }}
