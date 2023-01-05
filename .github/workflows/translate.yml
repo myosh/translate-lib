@@ -13,12 +13,7 @@ jobs:
       - name: Read 'en.json' file
         id: translation_en
         run: |
-          content=`cat ./en.json`
-          # the following lines are only required for multi line json
-          content="${content//'%'/''}"
-          content="${content//$'\n'/''}"
-          content="${content//$'\r'/''}"
-          # end of optional handling for multi line json
+          content=`cat ./en.json | jq -c ''`
           echo "enJSON=$content" >> $GITHUB_OUTPUT
       # - name: Echo 'en.json' content
       #   run: echo "${{steps.translation_en.outputs.enJSON}}"
