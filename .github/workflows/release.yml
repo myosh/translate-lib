@@ -8,6 +8,10 @@ on:
         description: "Major, minor or patch?"
         required: true
         options:
+          - prerelease
+          - premajor
+          - preminor
+          - prepatch
           - major
           - minor
           - patch
