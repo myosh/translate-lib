@@ -15,7 +15,6 @@ jobs:
         run: |
           content=`cat ./en.json`
           # the following lines are only required for multi line json
-          content="${content//' '/''}"
           content="${content//'%'/''}"
           content="${content//$'\n'/''}"
           content="${content//$'\r'/''}"
