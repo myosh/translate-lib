@@ -2,5 +2,6 @@
   "back": "Back",
   "close": "Close",
   "hello": "Hello",
-  "home": "Home"
+  "home": "Home",
+  "message": "Hello world!"
 }
