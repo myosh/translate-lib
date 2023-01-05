@@ -1,7 +1,6 @@
 {
-  "language": "Language",
-  "close": "Close",
   "back": "Back",
-  "home": "Home",
-  "hello": "Hello"
+  "close": "Close",
+  "hello": "Hello",
+  "home": "Home"
 }

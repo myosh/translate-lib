@@ -1,6 +1,15 @@
 {
-  "name": "translate-lib",
+  "name": "@gatanaso/translate-lib",
   "version": "0.0.1",
   "description": "A test translation lib project",
-  "private": true
+  "files": [
+    "generated"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "devDependencies": {
+    "release-it": "^15.6.0",
+    "@release-it/bumper": "^4.0.0"
+  }
 }
