@@ -6,18 +6,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Git config
+        run: |
+          git config user.name ${{github.actor}}
+          git config user.email ${{github.actor}}@users.noreply.github.com
       - name: Read 'en.json' file
         id: translation_en
         run: |
           content=`cat ./en.json`
           # the following lines are only required for multi line json
+          content="${content//' '/''}"
           content="${content//'%'/''}"
           content="${content//$'\n'/''}"
           content="${content//$'\r'/''}"
           # end of optional handling for multi line json
           echo "enJSON=$content" >> $GITHUB_OUTPUT
-      # - name: Print 'en.json' content
-      #   run: echo "${{steps.translation_base.outputs.enJSON}}"
+      # - name: Echo 'en.json' content
+      #   run: echo "${{steps.translation_en.outputs.enJSON}}"
       - name: Translate EN to FI
         id: translation_fi
         uses: gagoar/invoke-aws-lambda@v3.3.1
@@ -27,8 +32,8 @@ jobs:
           REGION: ${{ secrets.REGION }}
           FunctionName: "translate-files"
           Payload: ${{ format('{{"sourceLang":{0}, "targetLang":{1}, "data":{2}}}', '"en"', '"fi"', steps.translation_en.outputs.enJSON) }}
-      - name: Echo response Payload
-        run: echo ${{ fromJSON(steps.translation_fi.outputs.response).Payload }}
+      # - name: Echo translation response
+      #   run: echo ${{ fromJSON(steps.translation_fi.outputs.response).Payload }}
       - name: Translate EN to ES
         id: translation_es
         uses: gagoar/invoke-aws-lambda@v3.3.1
@@ -38,9 +43,16 @@ jobs:
           REGION: ${{ secrets.REGION }}
           FunctionName: "translate-files"
           Payload: ${{ format('{{"sourceLang":{0}, "targetLang":{1}, "data":{2}}}', '"en"', '"es"', steps.translation_en.outputs.enJSON) }}
-      - name: Echo response Payload
-        run: echo ${{ fromJSON(steps.translation_es.outputs.response).Payload }}
-      # - name: Git config
-      #   run: |
-      #     git config user.name ${{github.actor}}
-      #     git config user.email ${{github.actor}}@users.noreply.github.com
+      # - name: Echo translation response
+      #   run: echo ${{ fromJSON(steps.translation_es.outputs.response).Payload }}
+      - name: Create translation files
+        run: |
+          mkdir -p ./generated
+          echo '${{ steps.translation_en.outputs.enJSON }}' > ./generated/en.json
+          echo '${{ fromJSON(steps.translation_fi.outputs.response).Payload }}' > ./generated/fi.json
+          echo '${{ fromJSON(steps.translation_es.outputs.response).Payload }}' > ./generated/es.json
+      - name: Commit translations
+        run: |
+          (git add .) || true
+          (git commit -m '[automated commit] language translations') || true
+          (git push) || true
